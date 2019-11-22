@@ -1,0 +1,6 @@
+Begin
+	function edmondsKarp():
+		initiate flow as 0
+		if there is an augmenting path from source to sink, add the path to flow
+		return flow
+End
