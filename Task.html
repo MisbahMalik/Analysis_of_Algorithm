@@ -1,43 +1,89 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-<title>Page Title</title>
+	<title>Page Title</title>
 </head>
+
 <body>
-<script>
-class Task{
-		constructor(project, interest){
+	<script>
+		class Task {
+			constructor(project, interest) {
 				this.Project = project;
 				this.Interest = interest;
+			}
+			print() {
+				document.write("Project: " + this.Project + "<br>");
+				document.write("Interest: " + this.Interest + "<br>");
+			}
 		}
-}
-class employee{
-		constructor(name, interests,  tasks[]){
+		class employee {
+			constructor(name, interests, tasks) {
 				this.Name = name;
 				this.Interests = interests;
-				this.Tasks[] = tasks;
+				this.Tasks = tasks;
+			}
+			print() {
+				document.write("Name: " + this.Name + "<br>");
+				document.write("Interests: " + this.Interests + "<br>");
+				document.write("Tasks: " + this.Tasks + "<br>");
+			}
+		}
+		//Insertion sorting
+		function sortEmployee(employee) {
+			var item, j;
+			// document.write("In function, Length: " + employee.length + "<br>");
+			// document.write("In function, Length of first Employee's tasks: " + employee[0].Tasks.length + "<br>");
+			for (var i = 1; i < employee.length; ++i) {
+				item = employee[i]; j = i - 1;
+				// document.write("Tasks length of "+ i + " is " + employee[i].Tasks.length + "and " + item.Tasks.length + "<br>");
+				while (employee[j].Tasks.length > item.Tasks.length) {
+					employee[j + 1] = employee[j];
+					--j;
+					if (j < 0) break;
 				}
+				employee[j + 1] = item;
+			}
+			return employee; 
+		} 
 		
-}
-function sortEmployee(employee[]){
-	var item, j;
-	for (var i = 1; i < employee.length; ++i) {
-		item = employee[i].task.length; j = i - 1;
-		while (employee[i].task.length > item) {
-			employee[j+1].task.length = employee[j].task.length; --j;
-			if (j < 0) break;
+		function TaskAssigning(Task, employee) {
+			var List = [];
+			for (var i = 1; i < employee.Length; i++) {
+				if (Task.Interest == employee[i].Interest && employee[i].Tasks.Length < 5) {
+					employee[i].Tasks.push(Task);
+					//document.write("Emplyee jisko task mila"+employee[i]+"<br>");
+					List.push(employee[i]);
+				}
+			}
 		}
-		employee[j+1].task.length = item;
-	}
-}
-function TaskAssigning(Task[], employee[]){
-	for(var i=1; i < employee.Length; i++){
-		if(Task.Interest == employee[i].Interest && employee[i].Tasks.Length<5){
-			employee[i].Tasks.push(Task);
-			document.write(employee[i]);
+		function PrintEmployees(Employees) {
+			for (i = 0; i < Employees.length; i++) {
+				Employees[i].print();
+			}
 		}
-	}
-}
-</script>
+		//instantiation of objects
+		tsk = new Task("my project", "c++");
+		// tsk.print();
+		empl = new employee("AAA", "C++", ["T1", "T2", "T3"]);
+		// empl.print();
+		// document.write(empl.Tasks)
+		//let's say we have a list of employees with their interests
+		ListEmployee = new Array();
+		List2 = new Array();
+		ListEmployee[0] = empl;
+		ListEmployee[1] = new employee("BBB", "C#", ["T5", "P1"]);
+		ListEmployee[2] = new employee("CCC", "C++", ["P2"]);
+		ListEmployee[3] = new employee("DDD", "PHP", []);
+		ListEmployee[4] = new employee("EEE", "JAVA", []);
+		// ListEmployee[1].print();	//printing individual
+		PrintEmployees(ListEmployee);	//function defined to print all employees list
+		ListEmployee = sortEmployee(ListEmployee);
+		document.write("Sorted List of employee with respect to their Assigned Tasks<br>");
+		PrintEmployees(ListEmployee);	//finally printing the sorted list
+		List2 = TaskAssigning(tsk, ListEmployee);
+		document.write(List2);
+	</script>
 </body>
+
 </html>
