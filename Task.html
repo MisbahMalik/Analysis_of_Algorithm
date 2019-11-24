@@ -7,16 +7,21 @@
 
 <body>
 	<script>
+	//class containing the constrainsts of a project which will include the project title and 
+	//the field of interest of the project on the basis of which it will be assigned to the employees
 		class Task {
-			constructor(project, interest) {
+			constructor(project, interest, parts) {
 				this.Project = project;
 				this.Interest = interest;
+				this.parts = parts;
 			}
 			print() {
 				document.write("Project: " + this.Project + "<br>");
 				document.write("Interest: " + this.Interest + "<br>");
 			}
+			
 		}
+	// a class containing the detail of an employee
 		class employee {
 			constructor(name, interests, tasks) {
 				this.Name = name;
@@ -29,14 +34,11 @@
 				document.write("Tasks: " + this.Tasks + "<br>");
 			}
 		}
-		//Insertion sorting
+		//Insertion sorting, It will sort the employees on the basis of no. of projects on which they are currently working
 		function sortEmployee(employee) {
 			var item, j;
-			// document.write("In function, Length: " + employee.length + "<br>");
-			// document.write("In function, Length of first Employee's tasks: " + employee[0].Tasks.length + "<br>");
 			for (var i = 1; i < employee.length; ++i) {
 				item = employee[i]; j = i - 1;
-				// document.write("Tasks length of "+ i + " is " + employee[i].Tasks.length + "and " + item.Tasks.length + "<br>");
 				while (employee[j].Tasks.length > item.Tasks.length) {
 					employee[j + 1] = employee[j];
 					--j;
@@ -44,45 +46,55 @@
 				}
 				employee[j + 1] = item;
 			}
-			return employee; 
+			return employee;      //returns sorted list of employees
 		} 
 		
 		function TaskAssigning(Task, employee) {
 			var List = [];
-			for (var i = 1; i < employee.Length; i++) {
-				if (Task.Interest == employee[i].Interest && employee[i].Tasks.Length < 5) {
-					employee[i].Tasks.push(Task);
-					//document.write("Emplyee jisko task mila"+employee[i]+"<br>");
-					List.push(employee[i]);
+			for(var k = 0; k < 3; k++){
+			for (var i = 0; i < employee.length; ++i) {
+				if (Task.Interest == employee[i].Interests && employee[i].Tasks.length < 5) {
+					employee[i].Tasks.push(Task.Project);
+					List.push(employee[i].Name);
+					break;
 				}
 			}
+			employee = sortEmployee(employee);
+			}
+			//document.write("Selected "+ List);
+			return List;
 		}
+		//A function to print the list of employees, it will call the function of employee class
 		function PrintEmployees(Employees) {
 			for (i = 0; i < Employees.length; i++) {
 				Employees[i].print();
 			}
 		}
 		//instantiation of objects
-		tsk = new Task("my project", "c++");
+		tsk = new Task("myproject", "C++");
+		
 		// tsk.print();
-		empl = new employee("AAA", "C++", ["T1", "T2", "T3"]);
+		empl = new employee("Ali", "C++", ["T1", "T2", "T3"]);
 		// empl.print();
 		// document.write(empl.Tasks)
 		//let's say we have a list of employees with their interests
 		ListEmployee = new Array();
-		List2 = new Array();
+		list = new Array();
 		ListEmployee[0] = empl;
-		ListEmployee[1] = new employee("BBB", "C#", ["T5", "P1"]);
-		ListEmployee[2] = new employee("CCC", "C++", ["P2"]);
-		ListEmployee[3] = new employee("DDD", "PHP", []);
-		ListEmployee[4] = new employee("EEE", "JAVA", []);
+		ListEmployee[1] = new employee("Aliya", "C#", ["T5", "P1"]);
+		ListEmployee[2] = new employee("Bob", "C++", ["P2", "oo"]);
+		ListEmployee[3] = new employee("Alice", "PHP", []);
+		ListEmployee[4] = new employee("Susan", "JAVA", []);
 		// ListEmployee[1].print();	//printing individual
 		PrintEmployees(ListEmployee);	//function defined to print all employees list
 		ListEmployee = sortEmployee(ListEmployee);
 		document.write("Sorted List of employee with respect to their Assigned Tasks<br>");
 		PrintEmployees(ListEmployee);	//finally printing the sorted list
-		List2 = TaskAssigning(tsk, ListEmployee);
-		document.write(List2);
+		list = TaskAssigning(tsk, ListEmployee); //Assigning the task to employees
+		//document.write("List selected<br>");
+		//PrintEmployees(list);
+		document.write("The list of employees to which task is assigned: "+list+"<br>");
+		PrintEmployees(ListEmployee);	//finally printing the sorted list after assigning the task
 	</script>
 </body>
 
