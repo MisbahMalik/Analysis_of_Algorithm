@@ -8,8 +8,7 @@
         .error {
             color: #FF0000;
         }
-        table {
-            
+        table { 
             margin-left: auto;
             margin-right: auto; 
             margin-bottom: 20px;
@@ -39,6 +38,96 @@
         </h1>
     </header>
     <?php
+    // a class containing the detail of an employee
+    class employee
+    {
+        public $name;
+        public $interests = array();
+        public $tasks = array();
+
+        function set_name($name)
+        {
+            $this->name = $name;
+        }
+        function set_interests($intrsts){
+            $this->interests = $intrsts;
+        }
+        function set_tasks($tsks){
+            $this->tasks = $tsks;
+        }
+        function display(){
+            echo nl2br("\nName: " . $this->name);
+            echo "Interests: ";
+            for($i = 0; $i<count($this->interests); $i++){
+                echo $this->interests[$i];
+            }
+            echo "Tasks: ";
+            for($i = 0; $i<count($this->tasks); $i++){
+                echo $this->tasks[$i];
+            }
+        }
+    }
+     //Insertion sorting, It will sort the employees on the basis of no. of projects on which they are currently working
+     function sortEmployee($employee) {
+        $item = $j = 0;
+       for ($i = 1; $i < count($employee); ++$i) {
+           $item = $employee[$i];
+           $j = $i - 1;
+           while (count($employee[$j]->tasks) > count($item->tasks)) {
+               $employee[$j + 1] = $employee[$j];
+               --$j;
+               if ($j < 0) break;
+           }
+           $employee[$j + 1] = $item;
+       }
+       return $employee; //returns sorted list of employees
+   }
+   function find($Interest, $array){
+       for($j = 0; $j < count($array); ++$j){
+           if($Interest == $array[$j]){
+               return true;
+           }
+       }
+       return false;
+   } 
+   function TaskAssigning($employee, $Task, $Interest, $parts, mysqli $db) {
+       $List = array();
+       
+       for ($k = 0; $k < $parts; $k++) { 
+           for ($i = 0; $i < count($employee); ++$i) {
+               
+               if (find($Interest, $employee[$i]->interests) && count($employee[$i]->tasks) < 5) {
+                   array_push($List, $employee[$i]->name);
+                   array_push($employee[$i]->tasks, $Task);
+                   $nm = $employee[$i]->name;
+                   $ts = implode(", ", $employee[$i]->tasks) ;
+                   $querry = "UPDATE employees SET Tasks = '$ts' WHERE name = '$nm'"; 
+                   if ($db->query($querry) === TRUE) {
+                       echo "";
+                   } else {
+                       echo "Error<br>" . $db->error;
+                   }
+                   break;
+               }  
+               
+           } 
+           $employee = sortEmployee($employee);
+       } 
+       $str ="The Desired list of employees to whom the project is assigned, is: \n" ;
+       $next = "\n";
+       echo nl2br($str);
+       //document.write("Selected "+ List);
+      for($n = 0; $n < $parts; ++$n){
+          if(is_null($List[$n])){
+           echo nl2br("Can't assign the project\n");
+          }else{
+           echo nl2br($List[$n]);
+           echo nl2br($next);
+       }
+       }
+       
+   }
+  
     $dbHost = "localhost";
     $dbUsername = 'root';
     $dbPassword = '';
@@ -58,9 +147,10 @@
         $data = htmlspecialchars($data);
         return $data;
     }
-
+    
+    //insert new record in table
     if (isset($_POST['add'])) {
-        //$tfname = $_POST['name'];
+        
         $tfname = test_input($_POST["name"]); {
             // check if name only contains letters and whitespace
             if (!preg_match("/^[a-zA-Z ]*$/", $tfname)) {
@@ -69,15 +159,7 @@
                 $fn = TRUE;
             }
         }
-       $json = "";
-        $interest = "";
-        if (isset($_POST["interest"]) && is_array($_POST["interest"])) {
-          $interest = json_encode($_POST["interest"]);
-            $json = json_decode($interest, true);
-             echo $json[0];
-            $interest = implode(",",$_POST["interest"]);
-        }
-      
+        $interest = $_POST['interest'];      
         $task = $_POST['tasks'];
         if ($fn) {
             $sql = "INSERT INTO employees (name, interest, Tasks) VALUES ('$tfname', '$interest','$task');";
@@ -88,22 +170,50 @@
             }
         }
     }
-   
-    function sortEmployee($employee) {
-         $item = $j = 0;
-        for ($i = 1; $i < count($employee); ++$i) {
-            $item = $employee[$i];
-            $j = $i - 1;
-            while (count($employee[$j]->tasks) > count($item->tasks)) {
-                $employee[$j + 1] = $employee[$j];
-                --$j;
-                if ($j < 0) break;
-            }
-            $employee[$j + 1] = $item;
+
+    if (isset($_POST['result'])) {
+        
+        $naam = $interests = $tasks = "";
+        $ftask = $finterest =$Err=$p=  "";
+        $fparts = 0;
+        // $employee = array();
+        $empl = array();
+        $assignedlst = array();
+        $arrintrsts = "";
+        $fparts = test_input($_POST["parts"]); {
+          if (!preg_match("/^[0-9]*$/", $fparts)) {
+                $Err = "Only numbers are allowed\n";
+            } else {
+                $p = TRUE;
+            } 
         }
-        return $employee; //returns sorted list of employees
+        $empl = sortEmployee($empl);
+        $ftask = $_POST['task'];   
+        $finterest = $_POST['interest'];   
+        $fparts = $_POST['parts'];  
+        $sql = "SELECT * FROM employees";
+        $result = $db->query($sql);
+        if($p){
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $employe = new employee();
+                $naam = $row["name"];
+                $employe->name = $naam;
+                $interests = $row["interest"];     // preg_split()
+                $arrintrsts = explode(",", $interests);
+                $employe->set_interests($arrintrsts);
+                $tasks = $row["Tasks"];
+                $taskk = explode(",", $tasks);
+                $employe->set_tasks($taskk);
+                array_push($empl, $employe);
+              }
+            TaskAssigning($empl, $ftask, $finterest, $fparts, $db);
+           } else {
+            echo "0 results found";
+        }
     }
-    
+    }
+    //delete whole record
     if (isset($_POST['delete'])) {
         $sql = "DELETE from employees";
 
@@ -113,6 +223,7 @@
             echo "Error deleting record: " . $db->error;
         }
     }
+    //delete a specific record
     if (isset($_POST['deleteR'])) {
         $n = $_POST['n'];
         $sql = "DELETE from employees WHERE id='$n'";
@@ -123,14 +234,13 @@
             echo "Error deleting record: " . $db->error;
         }
     }
-
+    //display all record
     if (isset($_POST['show'])) {
-
         $sql1 = "SELECT * FROM employees";
-        $naam = "";
-        
+        $naam = "";       
         $result = $db->query($sql1);
         if ($result->num_rows > 0) {
+            echo "<div class = 'table'>";
             echo "<table> <tr><th>ID</th><th>Name</th><th>Interest</th><th>Tasks Assigned</th> </tr>";
             while ($row = $result->fetch_assoc()) {
                 $naam = $row["name"];
@@ -138,6 +248,7 @@
                 <td> " . $row["interest"] . "</td><td> " . $row["Tasks"] . "</td></tr>";
             }
             echo "</table>";
+            echo "</div>";
             }
          else {
             echo "0 results found";
@@ -151,7 +262,7 @@
         <form class="empl" method="POST" action="http://localhost/TaskAssignment/TaskAssigning.php">
             <h2>Employees</h2>
             <input type="text" name="name" placeholder="Enter employees name" required>
-            <span class="error">* <?php echo $fnameErr; ?></span>
+            <span class="error"> <?php echo $fnameErr; ?></span>
             <input type="text" name="interest" required placeholder="Enter his/her interest">
            
             <input type="text" name="tasks" required placeholder="Enter his/her Projects"><br>
@@ -164,11 +275,11 @@
             <div><img id="con" src="grp.jpg" /></div>
         </form>
 
-        <form class="tsk">
+        <form class="tsk" method="POST" action="http://localhost/TaskAssignment/TaskAssigning.php">
             <h2>Task</h2>
-            <input type="text" name="task" placeholder="Enter task name" ><br>
-            <input type="text" name="interest" placeholder="Enter field of interest" ><br>
-            <input type="text" name="parts" placeholder="Enter modules of Project" ><br>
+            <input type="text" name="task" placeholder="Enter task name" required><br>
+            <input type="text" name="interest" placeholder="Enter field of interest" required><br>
+            <input type="text" name="parts" placeholder="Enter modules of Project" required><br>
             <br><br>
             <input type="submit" name="result" value="Result">
             <br><br>
@@ -192,75 +303,5 @@
         </form>
 
     </div>
-
-
-
-    <script>
-        //class containing the constrainsts of a project which will include the project title and 
-        //the field of interest of the project on the basis of which it will be assigned to the employees
-        class Task {
-            constructor(project, interest, parts) {
-                this.Project = project;
-                this.Interest = interest;
-                this.parts = parts;
-            }
-            print() {
-                document.write("Project: " + this.Project + "<br>");
-                document.write("Interest: " + this.Interest + "<br>");
-            }
-
-        }
-        // a class containing the detail of an employee
-        class employee {
-            constructor(name, interests, tasks) {
-                this.Name = name;
-                this.Interests = interests;
-                this.Tasks = tasks;
-            }
-            print() {
-                document.write("Name: " + this.Name + "<br>");
-                document.write("Interests: " + this.Interests + "<br>");
-                document.write("Tasks: " + this.Tasks + "<br>");
-            }
-        }
-        //Insertion sorting, It will sort the employees on the basis of no. of projects on which they are currently working
-        function sortEmployee(employee) {
-            var item, j;
-            for (var i = 1; i < employee.length; ++i) {
-                item = employee[i];
-                j = i - 1;
-                while (employee[j].Tasks.length > item.Tasks.length) {
-                    employee[j + 1] = employee[j];
-                    --j;
-                    if (j < 0) break;
-                }
-                employee[j + 1] = item;
-            }
-            return employee; //returns sorted list of employees
-        }
-
-        function TaskAssigning(Task, employee) {
-            var List = [];
-            for (var k = 0; k < 3; k++) {
-                for (var i = 0; i < employee.length; ++i) {
-                    if (Task.Interest == employee[i].Interests && employee[i].Tasks.length < 5) {
-                        employee[i].Tasks.push(Task.Project);
-                        List.push(employee[i].Name);
-                        break;
-                    }
-                }
-                employee = sortEmployee(employee);
-            }
-            //document.write("Selected "+ List);
-            return List;
-        }
-        //A function to print the list of employees, it will call the function of employee class
-        function PrintEmployees(Employees) {
-            for (i = 0; i < Employees.length; i++) {
-                Employees[i].print();
-            }
-        }
-    </script>
 </body>
-
 </html>
