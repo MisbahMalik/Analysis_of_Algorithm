@@ -1,15 +1,10 @@
 body {
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     color: #fff;
-    background: url(Marbl.jpg);
-    background-repeat: no-repeat;
-  background-attachment: fixed;
-    background-size: cover;
     background-color:#989898;
 }
 
 h1{
-    
     background-color: black;
     color: white;
 }
