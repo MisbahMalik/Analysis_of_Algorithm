@@ -170,8 +170,55 @@
             }
         }
     }
+    ?>
+<div class="two">
 
-    if (isset($_POST['result'])) {
+<form class="empl" method="POST" action="http://localhost/TaskAssignment/TaskAssigning.php">
+    <h2>Employees</h2>
+    <input type="text" name="name" placeholder="Enter employees name" required>
+    <span class="error"> <?php echo $fnameErr; ?></span>
+    <input type="text" name="interest" required placeholder="Enter his/her interest">
+   
+    <input type="text" name="tasks" required placeholder="Enter his/her Projects"><br>
+    <br><br>
+    <input type="submit" name="add" value="Add">
+
+    <br><br>
+</form>
+<form>
+    <div><img id="con" src="grp.jpg" /></div>
+</form>
+
+<form class="tsk" method="POST" action="http://localhost/TaskAssignment/TaskAssigning.php">
+    <h2>Task</h2>
+    <input type="text" name="task" placeholder="Enter task name" required><br>
+    <input type="text" name="interest" placeholder="Enter field of interest" required><br>
+    <input type="text" name="parts" placeholder="Enter modules of Project" required><br>
+    <br><br>
+    <input type="submit" name="result" value="Result">
+    <br><br>
+</form>
+
+</div>
+<div class="two">
+<form method="POST" action="http://localhost/TaskAssignment/TaskAssigning.php">
+    <input id="show" type="submit" name="show" value="Show Record"></form>
+<center>
+    <form class="delete" method="POST" action="http://localhost/TaskAssignment/TaskAssigning.php">
+        <br><br>
+        <input type="int" name="n" placeholder="Enter id of record" required><br> <br>
+        <div id="container">
+            <input type="submit" name="deleteR" value="Delete"><br>
+        </div>
+    </form>
+</center>
+<form method="POST" action="http://localhost/TaskAssignment/TaskAssigning.php">
+    <input id="delete" type="submit" name="delete" value="Delete Record">
+</form>
+
+</div>
+<?php    
+if (isset($_POST['result'])) {
         
         $naam = $interests = $tasks = "";
         $ftask = $finterest =$Err=$p=  "";
@@ -240,68 +287,22 @@
         $naam = "";       
         $result = $db->query($sql1);
         if ($result->num_rows > 0) {
-            echo "<div class = 'table'>";
+           // echo "<div class = 'table'>";
             echo "<table> <tr><th>ID</th><th>Name</th><th>Interest</th><th>Tasks Assigned</th> </tr>";
             while ($row = $result->fetch_assoc()) {
                 $naam = $row["name"];
                 echo "<tr onmouseover=\"hilite(this)\" onmouseout=\"lowlite(this)\"><td>" . $row["id"] . "</td><td>" . $row["name"] . "</td>
                 <td> " . $row["interest"] . "</td><td> " . $row["Tasks"] . "</td></tr>";
             }
-            echo "</table>";
-            echo "</div>";
+            }
+            //echo "</table>";
             }
          else {
             echo "0 results found";
         }
     
-    }
     $db->close();
     ?>
-    <div class="two">
-
-        <form class="empl" method="POST" action="http://localhost/TaskAssignment/TaskAssigning.php">
-            <h2>Employees</h2>
-            <input type="text" name="name" placeholder="Enter employees name" required>
-            <span class="error"> <?php echo $fnameErr; ?></span>
-            <input type="text" name="interest" required placeholder="Enter his/her interest">
-           
-            <input type="text" name="tasks" required placeholder="Enter his/her Projects"><br>
-            <br><br>
-            <input type="submit" name="add" value="Add">
-
-            <br><br>
-        </form>
-        <form>
-            <div><img id="con" src="grp.jpg" /></div>
-        </form>
-
-        <form class="tsk" method="POST" action="http://localhost/TaskAssignment/TaskAssigning.php">
-            <h2>Task</h2>
-            <input type="text" name="task" placeholder="Enter task name" required><br>
-            <input type="text" name="interest" placeholder="Enter field of interest" required><br>
-            <input type="text" name="parts" placeholder="Enter modules of Project" required><br>
-            <br><br>
-            <input type="submit" name="result" value="Result">
-            <br><br>
-        </form>
-
-    </div>
-    <div class="two">
-        <form method="POST" action="http://localhost/TaskAssignment/TaskAssigning.php">
-            <input id="show" type="submit" name="show" value="Show Record"></form>
-        <center>
-            <form class="delete" method="POST" action="http://localhost/TaskAssignment/TaskAssigning.php">
-                <br><br>
-                <input type="int" name="n" placeholder="Enter id of record" required><br> <br>
-                <div id="container">
-                    <input type="submit" name="deleteR" value="Delete"><br>
-                </div>
-            </form>
-        </center>
-        <form method="POST" action="http://localhost/TaskAssignment/TaskAssigning.php">
-            <input id="delete" type="submit" name="delete" value="Delete Record">
-        </form>
-
-    </div>
+    
 </body>
 </html>
