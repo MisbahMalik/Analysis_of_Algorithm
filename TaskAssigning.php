@@ -8,11 +8,13 @@
         .error {
             color: #FF0000;
         }
-        table { 
+
+        table {
             margin-left: auto;
-            margin-right: auto; 
+            margin-right: auto;
             margin-bottom: 20px;
         }
+
         th {
             font-family: Arial, Helvetica, sans-serif;
             font-size: 1.5em;
@@ -22,6 +24,7 @@
             border-collapse: separate;
             border: 1px solid black;
         }
+
         td {
             font-family: Arial, Helvetica, sans-serif;
             font-size: 1em;
@@ -49,85 +52,99 @@
         {
             $this->name = $name;
         }
-        function set_interests($intrsts){
+        function set_interests($intrsts)
+        {
             $this->interests = $intrsts;
         }
-        function set_tasks($tsks){
+        function set_tasks($tsks)
+        {
             $this->tasks = $tsks;
         }
-        function display(){
+        function display()
+        {
             echo nl2br("\nName: " . $this->name);
             echo "Interests: ";
-            for($i = 0; $i<count($this->interests); $i++){
+            for ($i = 0; $i < count($this->interests); $i++) {
                 echo $this->interests[$i];
             }
             echo "Tasks: ";
-            for($i = 0; $i<count($this->tasks); $i++){
+            for ($i = 0; $i < count($this->tasks); $i++) {
                 echo $this->tasks[$i];
             }
         }
     }
-     //Insertion sorting, It will sort the employees on the basis of no. of projects on which they are currently working
-     function sortEmployee($employee) {
+    //Insertion sorting, It will sort the employees on the basis of no. of projects on which they are currently working
+    function sortEmployee($employee)
+    {
         $item = $j = 0;
-       for ($i = 1; $i < count($employee); ++$i) {
-           $item = $employee[$i];
-           $j = $i - 1;
-           while (count($employee[$j]->tasks) > count($item->tasks)) {
-               $employee[$j + 1] = $employee[$j];
-               --$j;
-               if ($j < 0) break;
-           }
-           $employee[$j + 1] = $item;
-       }
-       return $employee; //returns sorted list of employees
-   }
-   function find($Interest, $array){
-       for($j = 0; $j < count($array); ++$j){
-           if($Interest == $array[$j]){
-               return true;
-           }
-       }
-       return false;
-   } 
-   function TaskAssigning($employee, $Task, $Interest, $parts, mysqli $db) {
-       $List = array();
-       
-       for ($k = 0; $k < $parts; $k++) { 
-           for ($i = 0; $i < count($employee); ++$i) {
-               
-               if (find($Interest, $employee[$i]->interests) && count($employee[$i]->tasks) < 5) {
-                   array_push($List, $employee[$i]->name);
-                   array_push($employee[$i]->tasks, $Task);
-                   $nm = $employee[$i]->name;
-                   $ts = implode(", ", $employee[$i]->tasks) ;
-                   $querry = "UPDATE employees SET Tasks = '$ts' WHERE name = '$nm'"; 
-                   if ($db->query($querry) === TRUE) {
-                       echo "";
-                   } else {
-                       echo "Error<br>" . $db->error;
-                   }
-                   break;
-               }  
-               
-           } 
-           $employee = sortEmployee($employee);
-       } 
-       $str ="The Desired list of employees to whom the project is assigned, is: \n" ;
-       $next = "\n";
-       echo nl2br($str);
-       //document.write("Selected "+ List);
-      for($n = 0; $n < $parts; ++$n){
-          if(is_null($List[$n])){
-           echo nl2br("Can't assign the project\n");
-          }else{
-           echo nl2br($List[$n]);
-           echo nl2br($next);
-       }
-       }
-       
-   }
-  
+        for ($i = 1; $i < count($employee); ++$i) {
+            $item = $employee[$i];
+            $j = $i - 1;
+            while (count($employee[$j]->tasks) > count($item->tasks)) {
+                $employee[$j + 1] = $employee[$j];
+                --$j;
+                if ($j < 0) break;
+            }
+            $employee[$j + 1] = $item;
+        }
+        return $employee; //returns sorted list of employees
+    }
+    //function to match the interests of employee with the field of interest of new task to be assigned
+    function find($Interest, $array)
+    {
+        for ($j = 0; $j < count($array); ++$j) {
+            if ($Interest == $array[$j]) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function TaskAssigning($employee, $Task, $Interest, $parts, mysqli $db)
+    {
+        $List = array();
+
+        for ($k = 0; $k < $parts; $k++) {
+            for ($i = 0; $i < count($employee); ++$i) {
+                $employee = sortEmployee($employee);
+                if (find($Interest, $employee[$i]->interests) && count($employee[$i]->tasks) < 5) {
+                    array_push($List, $employee[$i]->name);
+                    array_push($employee[$i]->tasks, $Task);
+                    $nm = $employee[$i]->name;
+                    $ts = implode(", ", $employee[$i]->tasks);
+                    $querry = "UPDATE employees SET Tasks = '$ts' WHERE name = '$nm'";
+                    if ($db->query($querry) === TRUE) {
+                        echo "";
+                    } else {
+                        echo "Error<br>";
+                    }
+                    break;
+                }
+            }
+        }
+        ?>
+        <h3 style="color:red"> The Desired list of <?php echo $parts; ?> employees to whom the project is assigned, is: </h3>
+        <?php
+            for ($n = 1; $n <= $parts; ++$n) {
+                if (is_null($List[$n])) {
+                    ?>
+                <li>
+                    Can't Assign the <?php echo $n; ?>th module of project according to given constraints
+                </li>
+            <?php
+                        //echo nl2br("Can't assign the project according to given constraints\n");
+                    } else {
+                        ?>
+                <ul>
+                    <li>
+                        <?php echo $List[$n] ?>
+                    </li>
+                </ul>
+    <?php
+            }
+        }
+    }
+
     $dbHost = "localhost";
     $dbUsername = 'root';
     $dbPassword = '';
@@ -140,6 +157,7 @@
     }
     $fnameErr = "";
     $fn = 0;
+    $Err = "";
     function test_input($data)
     {
         $data = trim($data);
@@ -147,10 +165,18 @@
         $data = htmlspecialchars($data);
         return $data;
     }
-    
+    if (isset($_POST['result'])) {
+        $fparts = test_input($_POST["parts"]); {
+            if (!preg_match("/^[0-9]*$/", $fparts)) {
+                $Err = "Only numbers are allowred\n";
+            } else {
+                $p = TRUE;
+            }
+        }
+    }
     //insert new record in table
     if (isset($_POST['add'])) {
-        
+
         $tfname = test_input($_POST["name"]); {
             // check if name only contains letters and whitespace
             if (!preg_match("/^[a-zA-Z ]*$/", $tfname)) {
@@ -159,7 +185,7 @@
                 $fn = TRUE;
             }
         }
-        $interest = $_POST['interest'];      
+        $interest = $_POST['interest'];
         $task = $_POST['tasks'];
         if ($fn) {
             $sql = "INSERT INTO employees (name, interest, Tasks) VALUES ('$tfname', '$interest','$task');";
@@ -171,101 +197,103 @@
         }
     }
     ?>
-<div class="two">
+    <div class="two">
 
-<form class="empl" method="POST" action="http://localhost/TaskAssignment/TaskAssigning.php">
-    <h2>Employees</h2>
-    <input type="text" name="name" placeholder="Enter employees name" required>
-    <span class="error"> <?php echo $fnameErr; ?></span>
-    <input type="text" name="interest" required placeholder="Enter his/her interest">
-   
-    <input type="text" name="tasks" required placeholder="Enter his/her Projects"><br>
-    <br><br>
-    <input type="submit" name="add" value="Add">
+        <form class="empl" method="POST" action="http://localhost/TaskAssignment/TaskAssigning.php">
+            <h2>Employees</h2>
+            <input type="text" name="name" placeholder="Enter employees name" required>
+            <span class="error"> <?php echo $fnameErr; ?></span>
+            <input type="text" name="interest" required placeholder="Enter his/her interest">
 
-    <br><br>
-</form>
-<form>
-    <div><img id="con" src="grp.jpg" /></div>
-</form>
+            <input type="text" name="tasks" required placeholder="Enter his/her Projects"><br>
+            <br><br>
+            <input type="submit" name="add" value="Add">
 
-<form class="tsk" method="POST" action="http://localhost/TaskAssignment/TaskAssigning.php">
-    <h2>Task</h2>
-    <input type="text" name="task" placeholder="Enter task name" required><br>
-    <input type="text" name="interest" placeholder="Enter field of interest" required><br>
-    <input type="text" name="parts" placeholder="Enter modules of Project" required><br>
-    <br><br>
-    <input type="submit" name="result" value="Result">
-    <br><br>
-</form>
+            <br><br>
+        </form>
+        <form>
+            <div><img id="con" src="grp.jpg" /></div>
+        </form>
+        <center>
+            <form class="tsk" method="POST" action="http://localhost/TaskAssignment/TaskAssigning.php">
+                <h2>Task</h2>
+                <input type="text" name="task" placeholder="Enter task name" required><br>
+                <input type="text" name="interest" placeholder="Enter field of interest" required><br>
+                <input type="text" name="parts" placeholder="Enter modules of Project" required>
+                <span class="error"> <?php echo $Err; ?></span><br>
+                <br><br>
+                <input type="submit" name="result" value="Result">
+                <br><br>
+            </form>
+        </center>
 
-</div>
-<div class="two">
-<form method="POST" action="http://localhost/TaskAssignment/TaskAssigning.php">
-    <input id="show" type="submit" name="show" value="Show Record"></form>
-<center>
-    <form class="delete" method="POST" action="http://localhost/TaskAssignment/TaskAssigning.php">
-        <br><br>
-        <input type="int" name="n" placeholder="Enter id of record" required><br> <br>
-        <div id="container">
-            <input type="submit" name="deleteR" value="Delete"><br>
-        </div>
-    </form>
-</center>
-<form method="POST" action="http://localhost/TaskAssignment/TaskAssigning.php">
-    <input id="delete" type="submit" name="delete" value="Delete Record">
-</form>
+    </div>
+    <div class="two">
+        <form method="POST" action="http://localhost/TaskAssignment/TaskAssigning.php">
+            <input id="show" type="submit" name="show" value="Show Record"></form>
+        <center>
+            <form class="delete" method="POST" action="http://localhost/TaskAssignment/TaskAssigning.php">
+                <br><br>
+                <input type="int" name="n" placeholder="Enter id of record" required><br> <br>
+                <div id="container">
+                    <input type="submit" name="deleteR" value="Delete"><br>
+                </div>
+            </form>
+        </center>
+        <form method="POST" action="http://localhost/TaskAssignment/TaskAssigning.php">
+            <input id="delete" type="submit" name="delete" value="Delete Record">
+        </form>
+    </div>
+    <br><br><br>
+    <?php
+    if (isset($_POST['result'])) {
 
-</div>
-<?php    
-if (isset($_POST['result'])) {
-        
         $naam = $interests = $tasks = "";
-        $ftask = $finterest =$Err=$p=  "";
+        $ftask = $finterest = $p =  "";
         $fparts = 0;
-        // $employee = array();
         $empl = array();
         $assignedlst = array();
         $arrintrsts = "";
+
+        $ftask = $_POST['task'];
+        $finterest = $_POST['interest'];
         $fparts = test_input($_POST["parts"]); {
-          if (!preg_match("/^[0-9]*$/", $fparts)) {
-                $Err = "Only numbers are allowed\n";
+            if (!preg_match("/^[0-9]*$/", $fparts)) {
+                $Err = "Only numbers are allowred\n";
             } else {
                 $p = TRUE;
-            } 
+            }
         }
-        $empl = sortEmployee($empl);
-        $ftask = $_POST['task'];   
-        $finterest = $_POST['interest'];   
-        $fparts = $_POST['parts'];  
+
+        // $fparts = $_POST['parts'];  
         $sql = "SELECT * FROM employees";
         $result = $db->query($sql);
-        if($p){
-        if ($result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
-                $employe = new employee();
-                $naam = $row["name"];
-                $employe->name = $naam;
-                $interests = $row["interest"];     // preg_split()
-                $arrintrsts = explode(",", $interests);
-                $employe->set_interests($arrintrsts);
-                $tasks = $row["Tasks"];
-                $taskk = explode(",", $tasks);
-                $employe->set_tasks($taskk);
-                array_push($empl, $employe);
-              }
-            TaskAssigning($empl, $ftask, $finterest, $fparts, $db);
-           } else {
-            echo "0 results found";
+        if ($p) {
+            if ($result->num_rows > 0) {
+                while ($row = $result->fetch_assoc()) {
+                    $employe = new employee();
+                    $naam = $row["name"];
+                    $employe->name = $naam;
+                    $interests = $row["interest"];
+                    $arrintrsts = explode(",", $interests);
+                    $employe->set_interests($arrintrsts);
+                    $tasks = $row["Tasks"];
+                    $taskk = explode(",", $tasks);
+                    $employe->set_tasks($taskk);
+                    array_push($empl, $employe);
+                }
+                //$empl = sortEmployee($empl);
+                TaskAssigning($empl, $ftask, $finterest, $fparts, $db);
+            } else {
+                echo "<table> <tr><th>Results</th> </tr><tr onmouseover=\"hilite(this)\" onmouseout=\"lowlite(this)\"><td>Zero Results Found</td></tr></table>";
+            }
         }
-    }
     }
     //delete whole record
     if (isset($_POST['delete'])) {
         $sql = "DELETE from employees";
-
         if ($db->query($sql) === TRUE) {
-            echo "Record deleted successfully";
+            echo "<table> <tr><th>Record of all employees Deleted Successfully</th> </tr></table>";
         } else {
             echo "Error deleting record: " . $db->error;
         }
@@ -273,36 +301,52 @@ if (isset($_POST['result'])) {
     //delete a specific record
     if (isset($_POST['deleteR'])) {
         $n = $_POST['n'];
-        $sql = "DELETE from employees WHERE id='$n'";
-
-        if ($db->query($sql) === TRUE) {
-            echo "Record deleted successfully";
+        $sql = "SELECT * from employees";
+        $result = $db->query($sql);
+        if ($result->num_rows == 0) {
+            echo "<table> <tr><th>Record</th> </tr>";
+            echo "<tr onmouseover=\"hilite(this)\" onmouseout=\"lowlite(this)\"><td>Zero Record Found</td></tr>";
+            echo "</table>";
         } else {
-            echo "Error deleting record: " . $db->error;
+            $n = $_POST['n'];
+            $sql = "DELETE from employees WHERE id='$n'";
+
+            if ($db->query($sql) === TRUE) {
+                //echo "Record deleted successfully";
+                echo "<table> <tr><th>Record of employee with id: " . $n . " Deleted Successfully</th> </tr></table>";
+            } else {
+                echo "<table> <tr><th>Error deleting record</th> </tr></table>" . $db->error;
+                //echo "Error deleting record: "
+
+            }
         }
     }
     //display all record
     if (isset($_POST['show'])) {
         $sql1 = "SELECT * FROM employees";
-        $naam = "";       
+        $naam = "";
         $result = $db->query($sql1);
         if ($result->num_rows > 0) {
-           // echo "<div class = 'table'>";
+            // echo "<div class = 'table'>";
             echo "<table> <tr><th>ID</th><th>Name</th><th>Interest</th><th>Tasks Assigned</th> </tr>";
             while ($row = $result->fetch_assoc()) {
-                $naam = $row["name"];
                 echo "<tr onmouseover=\"hilite(this)\" onmouseout=\"lowlite(this)\"><td>" . $row["id"] . "</td><td>" . $row["name"] . "</td>
                 <td> " . $row["interest"] . "</td><td> " . $row["Tasks"] . "</td></tr>";
             }
-            }
-            //echo "</table>";
-            }
-         else {
-            echo "0 results found";
+
+            echo "</table>";
+        } else {
+            echo "<table> <tr><th>Record</th> </tr><tr onmouseover=\"hilite(this)\" onmouseout=\"lowlite(this)\"><td>Zero Record Found</td></tr></table>";
         }
-    
+    }
     $db->close();
     ?>
-    
+    <footer>
+        <h2 style="background-color:black;color:white">
+            Task Allocation_________AOA project!
+        </h2>
+    </footer>
+
 </body>
+
 </html>
